@@ -16,4 +16,11 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
-    })->create();
+    })
+    ->create(function ($app) {
+        // Registra tu kernel personalizado
+        $app->singleton(
+            Illuminate\Contracts\Http\Kernel::class,
+            App\Http\Kernel::class
+        );
+    });

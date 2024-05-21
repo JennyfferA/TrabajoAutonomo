@@ -2,28 +2,31 @@
 
 namespace App\Http\Controllers\Api;
 
-
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-Use Illuminate\Support\Facades\Validator;
-use App\Models\usuario;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Validator;
+use App\Models\Usuario;
 
 class UsuarioController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('custom.auth');
+    }
+
     /**
      * Display a listing of the resource.
      */
-    public function index()    {
+    public function index()
+    {
         $usuario = Usuario::all();
-
-        
 
         $data = [
             'usuarios'=> $usuario,
             'status' => 200
         ];
 
-        return response()->json($data,200);
+        return response()->json($data, 200);
     }
 
     /**
@@ -31,48 +34,45 @@ class UsuarioController extends Controller
      */
     public function store(Request $request)
     {
-        //
-        $validator =  Validator::make($request->all(),[
+        $validator = Validator::make($request->all(), [
             'nombres' => 'required|max:255',
             'apellido' => 'required',
             'cedula' => 'required',
             'correo' => 'required|email|unique:usuario',
-            'dirrecion' => 'required'
+            'direccion' => 'required'
         ]);
 
-        if($validator->fails()){
-            $data=[
-                'message' => 'Error en la validacion de datos',
+        if ($validator->fails()) {
+            $data = [
+                'message' => 'Error en la validación de datos',
                 'errors' => $validator->errors(),
-                'status' => 400 
+                'status' => 400
             ];
-            return response()-> json($data, 400);
+            return response()->json($data, 400);
         }
 
-        $usuario = usuario::create([
+        $usuario = Usuario::create([
             'nombres' => $request->nombres,
             'apellido' => $request->apellido,
             'cedula' => $request->cedula,
             'correo' => $request->correo,
-            'dirrecion' => $request->dirrecion
-            
+            'direccion' => $request->direccion
         ]);
 
-        if(!$usuario){
+        if (!$usuario) {
             $data = [
-                'message'=>'Error al crear usuario',
-                'status'
+                'message' => 'Error al crear usuario',
+                'status' => 500
             ];
-            return response()->json($data,500);
-        };
+            return response()->json($data, 500);
+        }
 
         $data = [
             'Usuario' => $usuario,
             'status' => 201
         ];
 
-        return response()->json($data,201);
-
+        return response()->json($data, 201);
     }
 
     /**
@@ -80,22 +80,22 @@ class UsuarioController extends Controller
      */
     public function show(string $id)
     {
-        //
         $usuario = Usuario::find($id);
 
-        if (!$usuario){
+        if (!$usuario) {
             $data = [
-                'message' => 'usuario no encontrado',
-                'status' => 200
+                'message' => 'Usuario no encontrado',
+                'status' => 404
             ];
-        };
-        
+            return response()->json($data, 404);
+        }
+
         $data = [
             'usuario' => $usuario,
             'status' => 200
         ];
 
-        return response()->json($data,200);
+        return response()->json($data, 200);
     }
 
     /**
@@ -103,48 +103,48 @@ class UsuarioController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
         $usuario = Usuario::find($id);
 
-        if (!$usuario){
+        if (!$usuario) {
             $data = [
-                'message' => 'usuario no encontrado',
-                'status' => 200
+                'message' => 'Usuario no encontrado',
+                'status' => 404
             ];
+            return response()->json($data, 404);
+        }
 
-        };
-
-
-        $validator =  Validator::make($request->all(),[
+        $validator = Validator::make($request->all(), [
             'nombres' => 'required|max:255',
             'apellido' => 'required',
             'cedula' => 'required',
-            'correo' => 'required|email|unique:usuario',
-            'dirrecion' => 'required'
+            'correo' => 'required|email|unique:usuario,correo,' . $id,
+            'direccion' => 'required'
         ]);
 
-        if($validator->fails()){
-            $data=[
-                'message' => 'Error en la validacion de datos',
+        if ($validator->fails()) {
+            $data = [
+                'message' => 'Error en la validación de datos',
                 'errors' => $validator->errors(),
-                'status' => 400 
+                'status' => 400
             ];
-            return response()-> json($data, 400);
+            return response()->json($data, 400);
         }
 
         $usuario->nombres = $request->nombres;
         $usuario->apellido = $request->apellido;
         $usuario->cedula = $request->cedula;
         $usuario->correo = $request->correo;
-        $usuario->dirrecion = $request->dirrecion;
+        $usuario->direccion = $request->direccion;
 
         $usuario->save();
-        $data= [
-            'message' => 'Usuario Actualizado',
+
+        $data = [
+            'message' => 'Usuario actualizado',
             'usuario' => $usuario,
-            'status' => 200,
+            'status' => 200
         ];
-        return response()->json($data,200);
+
+        return response()->json($data, 200);
     }
 
     /**
@@ -152,15 +152,15 @@ class UsuarioController extends Controller
      */
     public function destroy(string $id)
     {
-        //
         $usuario = Usuario::find($id);
 
-        if (!$usuario){
+        if (!$usuario) {
             $data = [
-                'message' => 'usuario no encontrado',
-                'status' => 200
+                'message' => 'Usuario no encontrado',
+                'status' => 404
             ];
-        };
+            return response()->json($data, 404);
+        }
 
         $usuario->delete();
 
@@ -170,6 +170,5 @@ class UsuarioController extends Controller
         ];
 
         return response()->json($data, 200);
-
     }
 }
