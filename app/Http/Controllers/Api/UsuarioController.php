@@ -9,10 +9,7 @@ use App\Models\Usuario;
 
 class UsuarioController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('custom.auth');
-    }
+    
 
     /**
      * Display a listing of the resource.
